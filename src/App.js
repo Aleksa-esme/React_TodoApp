@@ -6,6 +6,8 @@ import TodoAdd from './TodoAdd';
 import TodoDetail from './TodoDetail';
 import Register from './Register';
 import firebaseApp from './firebase';
+import Logout from './Logout';
+import Login from './Login';
 
 const date1 = new Date(2021, 7, 19, 14, 5);
 const date2 = new Date(2021, 7, 19, 15, 23);
@@ -81,56 +83,59 @@ export default class App extends Component {
       <HashRouter>
        <nav className='navbar is-light'>
           <div className='navbar-brand'>
-            <NavLink to="/" className={ ({ isActive }) =>
-              'navbar-item is-uppercase' + (isActive ? 'is-active' : '')}>
+            <NavLink to="/" className={ ({ isActive }) => 'navbar-item is-uppercase' + (isActive ? ' is-active' : '')}>
               {this.state.currentUser ? this.state.currentUser.email : 'Todos'}
             </NavLink>
 
-            <a  href='/' 
-                className={this.state.showMenu ? 'navbar-burger is-active' : 'navbar-burger'} 
-                onClick={this.showMenu}>
+            <a  href='/' className={this.state.showMenu ? 'navbar-burger is-active' : 'navbar-burger'} onClick={this.showMenu}>
               <span></span>
               <span></span>
               <span></span>
             </a>
           </div>
 
-          <div  className={this.state.showMenu ? 'navbar-menu is-active' : 'navbar-menu'} 
-                onClick={this.showMenu}>
+          <div  className={this.state.showMenu ? 'navbar-menu is-active' : 'navbar-menu'} onClick={this.showMenu}>
             <div className='navbar-start'>
             {this.state.currentUser && (
-              <NavLink to='/add' className={ ({ isActive }) => 
-                'navbar-item' + (isActive ? 'is-active' : '')}>
+              <NavLink to='/add' className={ ({ isActive }) => 'navbar-item' + (isActive ? ' is-active' : '')}>
                 Создать дело
               </NavLink>
             )}
             {!this.state.currentUser && (
-              <NavLink to='/register' className={ ({ isActive }) => 
-                'navbar-item' + (isActive ? 'is-active' : '')}>
+              <NavLink to='/login' className={({ isActive }) => 'navbar-item' + (isActive ? ' is-active' : '')}>
+                Войти
+              </NavLink>
+            )}
+            {!this.state.currentUser && (
+              <NavLink to='/register' className={ ({ isActive }) => 'navbar-item' + (isActive ? ' is-active' : '')}>
                 Зарегистрироваться
               </NavLink>
             )}
             </div>
+            {this.state.currentUser && (
+              <div className='navbar-end'>
+                <NavLink to='/logout' className={ ({ isActive}) => 'navbar-item' + (isActive ? ' is-active' : '')}>
+                  Выйти
+                </NavLink>
+              </div>
+            )}
           </div>
-
         </nav>
         <main className='content px-6 mt-6'>
         <Routes>
           <Route path="/" element={
-            <TodoList 
-              list={this.state.data}
-              setDone={this.setDone}
-              delete={this.delete} />
-          } /> 
-          <Route path="/add" element={
-            <TodoAdd add={this.add} />
-          } />
-          <Route path="/:key" element={
-            <TodoDetail getDeed={this.getDeed} />
-          } />
-          <Route path='/register' element={
-            <Register currentUser={this.state.currentUser} />
-          } />
+            <TodoList list={this.state.data} setDone={this.setDone} delete={this.delete} />}
+           /> 
+          <Route path="/add" element={<TodoAdd add={this.add} />} 
+          />
+          <Route path="/:key" element={<TodoDetail getDeed={this.getDeed} />}
+          />
+          <Route path='/register' element={<Register currentUser={this.state.currentUser} />}
+          />
+          <Route path='/logout' element={<Logout currentUser={this.state.currentUser} />}
+          />
+          <Route path='/login' element={<Login currentUser={this.state.currentUser} />}
+          />
         </Routes>
         </main>
       </HashRouter>
