@@ -8,32 +8,13 @@ import Register from './Register';
 import firebaseApp from './firebase';
 import Logout from './Logout';
 import Login from './Login';
-
-const date1 = new Date(2021, 7, 19, 14, 5);
-const date2 = new Date(2021, 7, 19, 15, 23);
-
-const initialData = [
-  { title: 'Изучить React',
-    desc: 'Да поскорее',
-    image: '',
-    done: true,
-    createdAt: date1.toLocaleString(),
-    key: date1.getTime()
-  },
-  { title: 'Написать первое React-приложение',
-    desc: 'Список запланированных дел',
-    image: '',
-    done: false,
-    createdAt: date2.toLocaleString(),
-    key: date2.getTime()
-  }
-];
+import { del, getList, setDone } from './api';
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     
-    this.state = { data: initialData, showMenu: false, currentUser: undefined };
+    this.state = { data: [], showMenu: false, currentUser: undefined };
     this.setDone = this.setDone.bind(this);
     this.delete = this.delete.bind(this);
     this.add = this.add.bind(this);
@@ -47,13 +28,15 @@ export default class App extends Component {
     this.setState((state) => ({}));
   }
 
-  setDone(key) {
+  async setDone(key) {
+    await setDone(this.state.currentUser, key);
     const deed = this.state.data.find((current) => current.key === key);
       deed.done = true;
     this.setState((state) => ({}));
   }
 
-  delete(key) {
+  async delete(key) {
+    await del(this.state.currentUser,key);
     const newData = this.state.data.filter( 
       (current) => current.key !== key
     );
@@ -66,12 +49,16 @@ export default class App extends Component {
   }
 
   getDeed(key) {
-    key = +key;
     return this.state.data.find((current) => current.key === key);
   }
 
-  authStateChanged(user) {
+  async authStateChanged(user) {
     this.setState((state) => ({ currentUser: user}));
+    if (user) {
+      const newData = await getList(user);
+      this.setState((state) => ({data: newData}))
+    } else
+      this.setState((state) => ({ data: [] }));
   }
 
   componentDidMount() {
@@ -126,7 +113,7 @@ export default class App extends Component {
           <Route path="/" element={
             <TodoList list={this.state.data} setDone={this.setDone} delete={this.delete} />}
            /> 
-          <Route path="/add" element={<TodoAdd add={this.add} />} 
+          <Route path="/add" element={<TodoAdd add={this.add} currentUser={this.state.currentUser} />} 
           />
           <Route path="/:key" element={<TodoDetail getDeed={this.getDeed} />}
           />
